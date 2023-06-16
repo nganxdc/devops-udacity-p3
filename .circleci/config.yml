@@ -2,7 +2,7 @@ version: 2.1
 
 # Use executor to define docker image
 executors:
-  use-node:command
+  use-node:
     docker:
       - image: circleci/node:13.8.0
   use-python:
