@@ -94,14 +94,38 @@ jobs:
       - run:
           name: npm run build
           working_directory: ./backend
-          command: exit 1
+          command: npm run build
             # Your code here
-            # npm run build
+            # exit 1
             
       - persist_to_workspace:
           root: .
           paths:
             - backend/dist
+
+  test-backend:
+    executor: use-node
+    steps:
+      # Checkout code from git
+      # Restore from cache
+      # Your job code here
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install junit coverage reporter
+          working_directory: ./backend
+          command: npm install --save-dev jest-junit
+      - run:
+          name: Run tests with JUnit as reporter
+          working_directory: ./backend
+          command: npm test -- --ci --runInBand --reporters=default --reporters=jest-junit && pwd
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./test_results
+      - store_test_results:
+          path: ./backend/test_results
+      - store_artifacts:
+          path: ./backend/test_results
 
   build-frontend:
     executor: use-node
@@ -136,30 +160,6 @@ jobs:
           path: ./frontend/test_results
       - store_artifacts:
           path: ./frontend/test_results
-
-  test-backend:
-    executor: use-node
-    steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Install junit coverage reporter
-          working_directory: ./backend
-          command: npm install --save-dev jest-junit
-      - run:
-          name: Run tests with JUnit as reporter
-          working_directory: ./backend
-          command: npm test -- --ci --runInBand --reporters=default --reporters=jest-junit && pwd
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./test_results
-      - store_test_results:
-          path: ./backend/test_results
-      - store_artifacts:
-          path: ./backend/test_results
 
   scan-frontend:
     executor: use-node
@@ -400,7 +400,7 @@ jobs:
             echo "${API}"
             if curl "${API}/api/status" | grep "ok"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
