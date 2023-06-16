@@ -1,11 +1,9 @@
 Description: >
   UdaPeople frontend stack.
-
 Parameters:
   ID:
     Description: Unique identifier.
     Type: String
-
 Resources:
   WebsiteBucket:
     Type: AWS::S3::Bucket
@@ -17,7 +15,6 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
-  
   WebsiteBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -29,7 +26,6 @@ Resources:
           Principal: '*'
           Action: s3:GetObject
           Resource: !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket', /*]]
-
 Outputs:
   WebsiteURL:
     Value: !GetAtt WebsiteBucket.WebsiteURL
