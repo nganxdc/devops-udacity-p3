@@ -35,7 +35,7 @@ commands:
           command: |
             aws s3 rm s3://udapeople-<< parameters.id >> --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
-          environment:
+          environment:revert_migrations
               TERM: xterm-256color
 
 # Revert when deploy fail
@@ -271,17 +271,18 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run:
-          name: Install AWS CLI dependencies
-          working_directory: /tmp
-          command: |
-            sudo apt-get update 
-            sudo apt-get install awscli
+      # - run:
+      #     name: Install AWS CLI dependencies
+      #     working_directory: /tmp
+      #     command: |
+      #       sudo apt-get update 
+      #       sudo apt-get install awscli
       - run:
           name: Run migrations
           working_directory: ./backend
           command: |
-            npm run migrations > migration
+            npm install
+            npm run migrations > migration.txt
       # Here's where you will add some code to rollback on failure 
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:5}
