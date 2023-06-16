@@ -136,9 +136,9 @@ jobs:
       - run:
           name: npm run build
           working_directory: ./frontend
-          command: exit 1
+          command: npm run build
             # Your code here
-            # npm run build           
+            # exit 1           
 
   test-frontend:
     executor: use-node
