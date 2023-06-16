@@ -220,10 +220,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file frontend.yml \
-              # --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5}" \
-              # --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}" \
-              # --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5}
-              exit 1
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}" \
+              --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5}
       - run:
           name: Add backend ip to ansible inventory
           working_directory: ./.circleci/ansible
@@ -233,7 +232,7 @@ jobs:
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:5}" \
               --output text >> inventory
             cat inventory
-            exit 1
+
       - persist_to_workspace:
           root: .
           paths:
@@ -251,26 +250,24 @@ jobs:
       # attach workspace
       - checkout
       - add_ssh_keys:
-          fingerprints: ["e8:0e:77:6f:43:d0:2d:f7:ec:d1:63:8a:b5:76:60:68"]
+          fingerprints: ["b5:13:0a:de:51:e0:f2:79:c9:b0:51:37:ae:d2:fb:a5"]
       - attach_workspace:
           at: .
       - run:
           name: Install dependencies
           working_directory: ./.circleci/ansible
           command: |
-            # apk add --update ansible
-            # ansible --version
-            exit 1
+            apk add --update ansible
+            ansible --version
+
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
           command: |
-            # pwd &&
-            # ls -la
-            # cat inventory
-            # ansible-playbook -i inventory configure-server.yml -vvv
-            # Your code here
-            exit 1
+            pwd &&
+            ls -la
+            cat inventory
+            ansible-playbook -i inventory configure-server.yml -vvv
       # Here's where you will add some code to rollback on failure 
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:5}
@@ -350,7 +347,7 @@ jobs:
       # attach workspace
       - checkout
       - add_ssh_keys:
-          fingerprints: ["e8:0e:77:6f:43:d0:2d:f7:ec:d1:63:8a:b5:76:60:68"]
+          fingerprints: ["b5:13:0a:de:51:e0:f2:79:c9:b0:51:37:ae:d2:fb:a5"]
       - attach_workspace:
           at: .
       - run:
