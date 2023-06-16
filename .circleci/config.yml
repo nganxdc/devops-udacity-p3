@@ -41,8 +41,7 @@ commands:
 # Revert when deploy fail
   revert_migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      # Add parameter here   
+    parameters:  
       when:
         type: string
       id:
@@ -50,7 +49,6 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
           when: on_fail
           working_directory: ./backend
           command: |
@@ -137,9 +135,6 @@ jobs:
           name: npm run build
           working_directory: ./frontend
           command: npm run build
-            # Your code here
-            # exit 1           
-
   test-frontend:
     executor: use-node
     steps:
@@ -164,9 +159,6 @@ jobs:
   scan-frontend:
     executor: use-node
     steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
       - attach_workspace:
           at: .
@@ -200,7 +192,6 @@ jobs:
   deploy-infrastructure:
     executor: use-aws
     steps:
-      # Checkout code from git
       - checkout
       - run:
           name: Install dependencies
