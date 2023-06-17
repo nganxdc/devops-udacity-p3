@@ -11,10 +11,10 @@
     become: true
     apt:
       autoremove: yes
-  - name: "install nodejs and npm"
+  - name: "install dependencies"
     become: true
     apt:
-      name: ["nodejs", "npm"]
+      name: ["nodejs", "npm", "tar"]
       state: latest
       update_cache: yes
   - name: "install n"
@@ -33,3 +33,22 @@
       global: yes
       production: yes
       state: present
+  - name: "Export env"
+    become: true
+    shell:  |
+      - name: "install pm2"
+        touch /etc/profile.d/env.sh
+        echo export TYPEORM_HOST=$TYPTYPEORM_HOST >> /etc/profile.d/env.sh
+        echo export TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> /etc/profile.d/env.sh
+        echo export TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> /etc/profile.d/env.sh
+        echo export TYPEORM_HOST=$TYPEORM_HOST >> /etc/profile.d/env.sh
+        echo export TYPEORM_PORT=$TYPEORM_PORT >> /etc/profile.d/env.sh
+        echo export TYPEORM_USERNAME=$TYPEORM_USERNAME >> /etc/profile.d/env.sh
+        echo export TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> /etc/profile.d/env.sh
+        echo export TYPEORM_DATABASE=$TYPEORM_DATABASE >> /etc/profile.d/env.sh
+        echo export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> /etc/profile.d/env.sh
+        echo export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> /etc/profile.d/env.sh
+        become: true
+        . /etc/environment
+        npm:
+        . ~/.bashrc 
