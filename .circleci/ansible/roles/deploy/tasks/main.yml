@@ -25,12 +25,14 @@
     command: pm2 delete all
     ignore_errors: true
 
-  - name: "Start server"
-    become: true
-    command: pm2 start -f ./main.js
-    args:
-      chdir: /home/ubuntu/uda_app/dist
-    environment:
+  - name: "Run the web server"
+    shell:
+      cmd: |
+        cd ~/server
+        npm install
+        pm2 stop default
+        pm2 start npm -- start --wait-ready
+        environment:
       ENVIRONMENT: production
       TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
       TYPEORM_MIGRATIONS_DIR: "./migrations"
@@ -42,14 +44,12 @@
       TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
       TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
 
-  - name: "Run the web server"
-    shell:
-      cmd: |
-        cd ~/server
-        npm install
-        pm2 stop default
-        pm2 start npm -- start --wait-ready
-        environment:
+  - name: "Start server"
+    become: true
+    command: pm2 start -f ./main.js
+    args:
+      chdir: /home/ubuntu/uda_app/dist
+    environment:
       ENVIRONMENT: production
       TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
       TYPEORM_MIGRATIONS_DIR: "./migrations"
