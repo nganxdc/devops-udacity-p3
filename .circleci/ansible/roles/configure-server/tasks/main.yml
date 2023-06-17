@@ -1,31 +1,37 @@
 ---
-  - name: "update apt packages."
+  - name: "Update packages."
     become: true
     apt:
       update_cache: yes
-  - name: "upgrade packages"
+
+  - name: "Upgrade apt packages"
     become: true
     apt:
       upgrade: yes
-  - name: "remove dependencies that are no longer required"
+
+  - name: "Remove dependencies that are no longer required"
     become: true
     apt:
       autoremove: yes
-  - name: "install dependencies"
+
+  - name: "Install nodejs and npm"
     become: true
     apt:
-      name: ["nodejs", "npm", "tar"]
+      name: ["nodejs", "npm"]
       state: latest
       update_cache: yes
+
   - name: "install n"
     become: true
     npm:
       name: n
       global: yes
       production: yes
+
   - name: "install nodejs 13.8.0"
     become: true
     shell: n 13.8.0
+
   - name: "install pm2"
     become: true
     npm:
@@ -33,22 +39,3 @@
       global: yes
       production: yes
       state: present
-  - name: "Export env"
-    become: true
-    shell:  |
-      - name: "install pm2"
-        touch /etc/profile.d/env.sh
-        echo export TYPEORM_HOST=$TYPTYPEORM_HOST >> /etc/profile.d/env.sh
-        echo export TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> /etc/profile.d/env.sh
-        echo export TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> /etc/profile.d/env.sh
-        echo export TYPEORM_HOST=$TYPEORM_HOST >> /etc/profile.d/env.sh
-        echo export TYPEORM_PORT=$TYPEORM_PORT >> /etc/profile.d/env.sh
-        echo export TYPEORM_USERNAME=$TYPEORM_USERNAME >> /etc/profile.d/env.sh
-        echo export TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> /etc/profile.d/env.sh
-        echo export TYPEORM_DATABASE=$TYPEORM_DATABASE >> /etc/profile.d/env.sh
-        echo export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> /etc/profile.d/env.sh
-        echo export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> /etc/profile.d/env.sh
-        become: true
-        . /etc/environment
-        npm:
-        . ~/.bashrc 
