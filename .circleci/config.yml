@@ -194,7 +194,7 @@ jobs:
             npm audit --audit-level=critical
 
 
-# Deploy Infra by cloudformation
+# Deploy Infra by cloudformation test
   deploy-infrastructure:
     executor: image_aws
     steps:
