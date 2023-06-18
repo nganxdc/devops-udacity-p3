@@ -268,12 +268,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      # - run:
-      #     name: Install AWS CLI dependencies
-      #     working_directory: /tmp
-      #     command: |
-      #       sudo apt-get update 
-      #       sudo apt-get install awscli
+      - run:
+          name: Install AWS CLI dependencies
+          working_directory: /tmp
+          command: |
+            sudo apt-get update 
+            sudo apt-get install awscli
       - run:
           name: Run migrations
           working_directory: ./backend
