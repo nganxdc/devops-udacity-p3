@@ -1,19 +1,21 @@
 version: 2.1
 
+# Common images
 executors:
-  node:
+  image_node:
     docker:
       - image: circleci/node:13.8.0
-  python:
+  image_python:
     docker:
       - image: python:3.11-rc-alpine
-  aws:
+  image_aws:
     docker:
       - image: amazon/aws-cli
 
+
 commands:
   destroy_environment:
-    description: Destroy Cloud Formation Stacks and infrastructure
+    description: Destroy CloudFormation Stacks and Infra
     parameters:
       when:
         type: string
@@ -21,7 +23,7 @@ commands:
         type: string
     steps:
       - run:
-          name: Destroy udapeople backend cfn stack
+          name: Destroy APP udapeople BE stack
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
@@ -36,8 +38,9 @@ commands:
           environment:
               TERM: xterm-256color
 
+
   revert_migrations:
-    description: Revert the last migration if successfully run in the current workflow.
+    description: Revert migration when fail.
     parameters:
       when:
         type: string
@@ -51,10 +54,10 @@ commands:
           command: |
               npm run migrations:revert
 
-jobs:
 
-  install-backend-dependencies:
-    executor: node
+jobs:
+  install-backend-lib:
+    executor: image_node
     steps:
       - checkout
       - run:
@@ -67,8 +70,8 @@ jobs:
             - backend/node_modules
 
 
-  install-frontend-dependencies:
-   executor: node
+  install-frontend-lib:
+   executor: image_node
    steps:
       - checkout
       - run:
@@ -81,8 +84,9 @@ jobs:
             - frontend/node_modules
 
 
+  # Build BE
   build-backend:
-    executor: node
+    executor: image_node
     steps:
       - checkout
       - attach_workspace:
@@ -97,42 +101,9 @@ jobs:
             - backend/dist
 
 
-  build-frontend:
-    executor: node
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: npm run build
-          working_directory: ./frontend
-          command: npm run build
-
-
-  test-frontend:
-    executor: node
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Install junit coverage reporter
-          working_directory: ./frontend
-          command: npm install --save-dev jest-junit
-      - run:
-          name: Run tests with JUnit as reporter
-          working_directory: ./frontend
-          command: npm test -- --ci --runInBand --reporters=default --reporters=jest-junit && pwd && ls -la /tmp
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./test_results
-      - store_test_results:
-          path: ./frontend/test_results
-      - store_artifacts:
-          path: ./frontend/test_results
-
-
+  # Test BE
   test-backend:
-    executor: node
+    executor: image_node
     steps:
       - checkout
       - attach_workspace:
@@ -153,8 +124,45 @@ jobs:
           path: ./backend/test_results
 
 
+  # Build FE
+  build-frontend:
+    executor: image_node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: npm run build
+          working_directory: ./frontend
+          command: npm run build
+
+
+  # Test FE
+  test-frontend:
+    executor: image_node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install junit coverage reporter
+          working_directory: ./frontend
+          command: npm install --save-dev jest-junit
+      - run:
+          name: Run tests with JUnit as reporter
+          working_directory: ./frontend
+          command: npm test -- --ci --runInBand --reporters=default --reporters=jest-junit && pwd && ls -la /tmp
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./test_results
+      - store_test_results:
+          path: ./frontend/test_results
+      - store_artifacts:
+          path: ./frontend/test_results
+
+
+# Scan frontend
   scan-frontend:
-    executor: node
+    executor: image_node
     steps:
       - checkout
       - attach_workspace:
@@ -169,8 +177,9 @@ jobs:
             npm audit --audit-level=critical
 
 
+# Scan backend
   scan-backend:
-    executor: node
+    executor: image_node
     steps:
       - checkout
       - attach_workspace:
@@ -185,8 +194,9 @@ jobs:
             npm audit --audit-level=critical
 
 
+# Deploy Infra by cloudformation
   deploy-infrastructure:
-    executor: aws
+    executor: image_aws
     steps:
       - checkout
       - run:
@@ -228,8 +238,9 @@ jobs:
           when: on_fail
 
 
+  # Install lib and configure server
   configure-infrastructure:
-    executor: python
+    executor: image_python
     steps:
       - checkout
       - add_ssh_keys:
@@ -255,8 +266,9 @@ jobs:
           when: on_fail
 
 
+# migrations DB
   run-migrations:
-    executor: node
+    executor: image_node
     steps:
       - checkout
       - attach_workspace:
@@ -279,8 +291,9 @@ jobs:
           when: on_fail
 
 
+  # Deploy FE
   deploy-frontend:
-    executor: node
+    executor: image_node
     steps:
       - checkout
       - attach_workspace:
@@ -321,8 +334,9 @@ jobs:
           when: on_fail
 
 
+# Deploy BE
   deploy-backend:
-    executor: python
+    executor: image_python
     steps:
       - checkout
       - add_ssh_keys:
@@ -351,8 +365,9 @@ jobs:
           when: on_fail
 
 
+# smoke test
   smoke-test:
-    executor: python
+    executor: image_python
     steps:
       - checkout
       - attach_workspace:
@@ -364,7 +379,7 @@ jobs:
             apk add --update curl nodejs npm
             pip install awscli
       - run:
-          name: Backend smoke test.
+          name: Backend smoke-test
           working_directory: ./backend
           command: |
             BACKEND_IP=$(aws ec2 describe-instances \
@@ -379,8 +394,21 @@ jobs:
             else
               exit 1
             fi
+
+            # BACKEND_IP=$(aws ec2 describe-instances \
+            #   --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            #   --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:5}" \
+            #   --output text)
+            # export API="http://${BACKEND_IP}:3030"
+            # echo "${API}"
+            # if curl "${API}/api/status" | grep "ok"
+            # then
+            #   return 0
+            # else
+            #   return 1
+            # fi
       - run:
-          name: Frontend smoke test.
+          name: Frontend smoke-test
           working_directory: ./backend
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:5}.s3-website.us-east-1.amazonaws.com/index.html"
@@ -393,12 +421,13 @@ jobs:
           when: on_fail
 
 
+# Update cloudfront
   cloudfront-update:
-    executor: aws
+    executor: image_aws
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Install lib
           command: |
             yum install -y tar gzip curl
             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
@@ -412,9 +441,8 @@ jobs:
               --no-paginate --output text >> old_workflow_id.txt
             cat old_workflow_id.txt
             
-
       - run:
-          name: Update cloudfront distribution
+          name: Update cloudfront to new url
           working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
@@ -427,8 +455,9 @@ jobs:
           when: on_fail
 
 
+# Delete old version
   cleanup:
-    executor: aws
+    executor: image_aws
     steps:
       - checkout
       - run:
@@ -447,13 +476,12 @@ jobs:
 
             if [[ "${CIRCLE_WORKFLOW_ID:0:5}" != "$OldWorkflowID" ]]
             then
-              echo "$OldWorkflowID!=${CIRCLE_WORKFLOW_ID:0:5} => will delete old version"
-
+              echo "$OldWorkflowID!=${CIRCLE_WORKFLOW_ID:0:5} => Delete old version"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
             else
-              echo "$OldWorkflowID==${CIRCLE_WORKFLOW_ID:0:5} => nothing needs to be done..."
+              echo "$OldWorkflowID==${CIRCLE_WORKFLOW_ID:0:5} => Current version is lastest"
             fi
           environment:
             TERM: xterm-256color
@@ -461,16 +489,19 @@ jobs:
 workflows:
   default:
     jobs:
-      ## BUILD AND DEPLOY
-      - install-backend-dependencies
-      - install-frontend-dependencies
+    # Prepare
+      - install-backend-lib
+      - install-frontend-lib
 
+    # Build
       - build-backend:
           requires:
-            - install-backend-dependencies
+            - install-backend-lib
       - build-frontend:
           requires:
-            - install-frontend-dependencies
+            - install-frontend-lib
+
+      # Test
       - test-backend:
           requires:
             - build-backend
@@ -484,15 +515,20 @@ workflows:
           requires:
             - test-frontend
 
+      # Deploy infra
       - deploy-infrastructure:
           requires: [scan-frontend,scan-backend]
           filters:
             branches:
               only:
+                # - dev
                 - main
+      # Config server
       - configure-infrastructure:
           requires:
             - deploy-infrastructure
+
+      # migrations DB
       - run-migrations:
           requires:
             - test-backend
@@ -503,20 +539,31 @@ workflows:
           filters:
             branches:
               only:
+                # - dev
                 - main
+
+      # Deploy and build BE
       - deploy-backend:
           requires:
             - run-migrations
+
+      # Deploy and build FE
       - deploy-frontend:
           requires:
             - run-migrations
+
+      # Test new version
       - smoke-test:
           requires:
             - deploy-backend
             - deploy-frontend
+
+      # Update CDN
       - cloudfront-update:
           requires:
             - smoke-test
+
+      # Delete old version
       - cleanup:
           requires:
             - cloudfront-update
