@@ -235,7 +235,7 @@ jobs:
             yum install -y nodejs
             yum install python3-pip
             pip3 install ansible
-            exit 1
+            # exit 1
       - run:
           name: Get backend url
           command: |
