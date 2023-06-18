@@ -482,7 +482,7 @@ jobs:
             #           --no-paginate --output text)
             export OldWorkflowID=$(cat OldWorkflowID.txt)
             echo OldWorkflowID: "${OldWorkflowID}"
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:5}"
             # Fetch the stack names          
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                       --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
@@ -493,8 +493,8 @@ jobs:
           command: |
             export OldWorkflowID=$(cat OldWorkflowID.txt)
             echo OldWorkflowID: "${OldWorkflowID}"
-            echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
+            echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:5}"
+            if [[ "${CIRCLE_WORKFLOW_ID:0:5}" != "${OldWorkflowID}" ]]
             then
               echo "---Start Cleanup ${OldWorkflowID}---"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
