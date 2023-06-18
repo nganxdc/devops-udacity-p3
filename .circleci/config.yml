@@ -425,8 +425,8 @@ jobs:
           command: |
             aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text >> old_workflow_id.txt
-            cat old_workflow_id.txt
+              --no-paginate --output text >> OldWorkflowID.txt
+            cat OldWorkflowID.txt
             
       - run:
           name: Update cloudfront to new url
@@ -447,31 +447,62 @@ jobs:
     executor: image_aws
     steps:
       - checkout
+      # - run:
+      #     name: Clean up old environment
+      #     working_directory: ./.circleci/files
+      #     command: |
+      #       export OldWorkflowID=$(aws cloudformation \
+      #       list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+      #       --no-paginate --output text)
+      #       echo OldWorkflowID: "${OldWorkflowID}"
+      #       echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:5}"
+      #       # Fetch the stack names          
+      #       export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+      #       --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+      #       echo Stack names: "${STACKS[@]}" 
+
+      #       if [[ "${CIRCLE_WORKFLOW_ID:0:5}" != "$OldWorkflowID" ]]
+      #       then
+      #         echo "$OldWorkflowID!=${CIRCLE_WORKFLOW_ID:0:5} => Delete old version"
+      #         aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+      #         aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+      #         aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+      #       else
+      #         echo "$OldWorkflowID==${CIRCLE_WORKFLOW_ID:0:5} => Current version is lastest"
+      #       fi
+      #     environment:
+      #       TERM: xterm-256color
       - run:
-          name: Clean up old environment
+          name: Get old stack workflow id
           working_directory: ./.circleci/files
           command: |
-            export OldWorkflowID=$(aws cloudformation \
-            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-            --no-paginate --output text)
+            # Fetch the Old workflow ID
+            # export OldWorkflowID=$(aws cloudformation \
+            #           list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            #           --no-paginate --output text)
+            export OldWorkflowID=$(cat ~/OldWorkflowID.txt)
             echo OldWorkflowID: "${OldWorkflowID}"
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:5}"
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
             # Fetch the stack names          
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-            --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-            echo Stack names: "${STACKS[@]}" 
-
-            if [[ "${CIRCLE_WORKFLOW_ID:0:5}" != "$OldWorkflowID" ]]
+                      --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack names: "${STACKS[@]}"
+      - run:
+          name: Remove old stacks and files
+          working_directory: ./.circleci/files
+          command: |
+            export OldWorkflowID=$(cat ~/OldWorkflowID.txt)
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
-              echo "$OldWorkflowID!=${CIRCLE_WORKFLOW_ID:0:5} => Delete old version"
+              echo "---Start Cleanup ${OldWorkflowID}---"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             else
-              echo "$OldWorkflowID==${CIRCLE_WORKFLOW_ID:0:5} => Current version is lastest"
+              echo '---Cannot Cleanup---'
             fi
-          environment:
-            TERM: xterm-256color
 
 workflows:
   default:
