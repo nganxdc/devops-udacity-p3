@@ -97,7 +97,7 @@
   register: execute_node
   
 - name: "Set pm2 start as service"
-  become: yes
+  become: true
   shell: |
     env PATH=$PATH:/usr/local/bin pm2 startup -u ubuntu --hp /home/ubuntu
 
