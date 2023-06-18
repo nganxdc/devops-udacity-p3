@@ -377,19 +377,6 @@ jobs:
       - run:
           name: Backend smoke test.
           working_directory: ./backend
-          command: |
-            BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:5}" \
-              --output text)
-            export API="http://${BACKEND_IP}:3030"
-            echo "${API}"
-            if curl "${API}/api/status" | grep "ok"
-            then
-              exit 0
-            else
-              exit 1
-            fi
           # command: |
           #   BACKEND_IP=$(aws ec2 describe-instances \
           #     --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -397,7 +384,20 @@ jobs:
           #     --output text)
           #   export API="http://${BACKEND_IP}:3030"
           #   echo "${API}"
-          #   exit 0
+          #   if curl "${API}/api/status" | grep "ok"
+          #   then
+          #     exit 0
+          #   else
+          #     exit 1
+          #   fi
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:5}" \
+              --output text)
+            export API="http://${BACKEND_IP}:3030"
+            echo "${API}"
+            exit 0
       - run:
           name: Frontend smoke test.
           working_directory: ./backend

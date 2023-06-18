@@ -6,14 +6,14 @@
       path: /home/ubuntu/uda_app
       state: directory
 
-  - name: "Sopy backend binaries"
+  - name: "Copy backend"
     become: true
     synchronize:
       src: ../../backend/dist
       dest: /home/ubuntu/uda_app
       recursive: true
 
-  - name: "Sopy node_modules"
+  - name: "Copy node_modules"
     become: true
     synchronize:
       src: ../../backend/node_modules
