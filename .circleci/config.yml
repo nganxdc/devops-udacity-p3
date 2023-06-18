@@ -200,8 +200,12 @@ jobs:
       - run:
           name: Install awscli
           command: |
-            sudo apt-get update -y
-            sudo apt-get install awscli -y
+            # sudo apt-get update -y
+            # sudo apt-get install awscli -y
+            sudo apt-get update && \
+            sudo apt-get install -y python3-pip && \
+            sudo pip3 install --upgrade pip && \
+            sudo pip3 install awscli
       - run:
           name: Run migrations
           command: |
