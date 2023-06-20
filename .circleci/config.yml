@@ -525,18 +525,18 @@ workflows:
             - install-frontend-lib
 
       # Test
-      # - test-backend:
-      #     requires:
-      #       - build-backend
-      # - test-frontend:
-      #     requires:
-      #       -  build-frontend
-      - scan-backend
-          # requires:
-          #   - test-backend
-      - scan-frontend
-          # requires:
-          #   - test-frontend
+      - test-backend:
+          requires:
+            - build-backend
+      - test-frontend:
+          requires:
+            -  build-frontend
+      - scan-backend:
+          requires:
+            - test-backend
+      - scan-frontend:
+          requires:
+            - test-frontend
 
       # Deploy infra
       - deploy-infrastructure:
@@ -552,18 +552,18 @@ workflows:
             - deploy-infrastructure
 
       # migrations DB
-      - run-migrations
-          # requires:
+      - run-migrations:
+          requires:
             # - test-backend
             # - test-frontend
-            # - scan-backend
-            # - scan-frontend
-            # - configure-infrastructure
-          # filters:
-          #   branches:
-          #     only:
+            - scan-backend
+            - scan-frontend
+            - configure-infrastructure
+          filters:
+            branches:
+              only:
                 # - dev
-                # - main
+                - main
 
       # Deploy and build BE
       - deploy-backend:
