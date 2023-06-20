@@ -559,11 +559,11 @@ workflows:
             # - scan-backend
             # - scan-frontend
             # - configure-infrastructure
-          filters:
-            branches:
-              only:
+          # filters:
+          #   branches:
+          #     only:
                 # - dev
-                - main
+                # - main
 
       # Deploy and build BE
       - deploy-backend:
