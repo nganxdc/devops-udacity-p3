@@ -531,12 +531,12 @@ workflows:
       # - test-frontend:
       #     requires:
       #       -  build-frontend
-      - scan-backend:
-          requires:
-            - test-backend
-      - scan-frontend:
-          requires:
-            - test-frontend
+      - scan-backend
+          # requires:
+          #   - test-backend
+      - scan-frontend
+          # requires:
+          #   - test-frontend
 
       # Deploy infra
       - deploy-infrastructure:
