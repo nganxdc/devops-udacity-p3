@@ -513,78 +513,78 @@ workflows:
   default:
     jobs:
     # # Prepare
-    #   - install-backend-lib
-    #   - install-frontend-lib
+      - install-backend-lib
+      - install-frontend-lib
 
-    # # Build
-    #   - build-backend:
-    #       requires:
-    #         - install-backend-lib
-    #   - build-frontend:
-    #       requires:
-    #         - install-frontend-lib
+    # Build
+      - build-backend:
+          requires:
+            - install-backend-lib
+      - build-frontend:
+          requires:
+            - install-frontend-lib
 
-    #   # Test
-    #   - test-backend:
-    #       requires:
-    #         - build-backend
-    #   - test-frontend:
-    #       requires:
-    #         -  build-frontend
-    #   - scan-backend:
-    #       requires:
-    #         - test-backend
-    #   - scan-frontend:
-    #       requires:
-    #         - test-frontend
+      # Test
+      # - test-backend:
+      #     requires:
+      #       - build-backend
+      # - test-frontend:
+      #     requires:
+      #       -  build-frontend
+      - scan-backend:
+          requires:
+            - test-backend
+      - scan-frontend:
+          requires:
+            - test-frontend
 
-    #   # Deploy infra
-    #   - deploy-infrastructure:
-    #       requires: [scan-frontend,scan-backend]
-    #       filters:
-    #         branches:
-    #           only:
-    #             # - dev
-    #             - main
-    #   # Config server
-    #   - configure-infrastructure:
-    #       requires:
-    #         - deploy-infrastructure
+      # Deploy infra
+      - deploy-infrastructure:
+          requires: [scan-frontend,scan-backend]
+          filters:
+            branches:
+              only:
+                # - dev
+                - main
+      # Config server
+      - configure-infrastructure:
+          requires:
+            - deploy-infrastructure
 
-    #   # migrations DB
-    #   - run-migrations:
-    #       requires:
-    #         - test-backend
-    #         - test-frontend
-    #         - scan-backend
-    #         - scan-frontend
-    #         - configure-infrastructure
-    #       filters:
-    #         branches:
-    #           only:
-    #             # - dev
-    #             - main
+      # migrations DB
+      - run-migrations:
+          requires:
+            - test-backend
+            - test-frontend
+            - scan-backend
+            - scan-frontend
+            - configure-infrastructure
+          filters:
+            branches:
+              only:
+                # - dev
+                - main
 
-    #   # Deploy and build BE
-    #   - deploy-backend:
-    #       requires:
-    #         - run-migrations
+      # Deploy and build BE
+      - deploy-backend:
+          requires:
+            - run-migrations
 
-    #   # Deploy and build FE
-    #   - deploy-frontend:
-    #       requires:
-    #         - run-migrations
+      # Deploy and build FE
+      - deploy-frontend:
+          requires:
+            - run-migrations
 
-    #   # Test new version
-    #   - smoke-test:
-    #       requires:
-    #         - deploy-backend
-    #         - deploy-frontend
+      # Test new version
+      - smoke-test:
+          requires:
+            - deploy-backend
+            - deploy-frontend
 
       # Update CDN
-      - cloudfront-update
-          # requires:
-          #   - smoke-test
+      - cloudfront-update:
+          requires:
+            - smoke-test
 
       # Delete old version
       - cleanup:
