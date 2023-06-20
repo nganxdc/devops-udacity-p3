@@ -8,6 +8,7 @@ Parameters:
   OldWorkflowID:
     Description: Unique identifier.
     Type: String
+    Default: 699fd
 
 
 Resources:
