@@ -5,6 +5,9 @@ Parameters:
   WorkflowID:
     Description: Unique identifier.
     Type: String
+  OldWorkflowID:
+    Description: Unique identifier.
+    Type: String
 
 
 Resources:
@@ -35,6 +38,11 @@ Resources:
 Outputs:
   WorkflowID:
     Value: !Sub ${WorkflowID}
-    Description: URL for website hosted on S3
+    Description: ID new stack
     Export:
       Name: WorkflowID
+  OldWorkflowID:
+    Value: !Sub ${OldWorkflowID}
+    Description: ID old stack
+    Export:
+      Name: OldWorkflowID
